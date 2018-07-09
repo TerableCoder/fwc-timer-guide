@@ -7,14 +7,14 @@ module.exports = function FwcTimerGuide(dispatch) {
     const warningTime = 60000;
 
     const messages = [
-        { time: 180000,    msg: '3:00 Mob buffs' },
+        { time: 180000,    msg: '3:00 Mobs' },
         { time: 240000,    msg: '3:40 Teralith @ South' },
         { time: 340000,    msg: '5:40 Naga @ North' },
-        { time: 370000,    msg: '6:10 Mob buffs' },
+        { time: 370000,    msg: '6:10 Mobs' },
         { time: 510000,    msg: '8:30 Teralith @ South' },
-        //{ time: 540000,    msg: '9:00 Mob buffs' },
+        //{ time: 540000,    msg: '9:00 Mobs' },
         { time: 690000,    msg: '11:30 Naga @ North' },
-        //{ time: 720000,    msg: '12:00 Mob buffs' },
+        //{ time: 720000,    msg: '12:00 Mobs' },
         { time: 800000,    msg: '13:20 Teralith @ South' },
         //{ time: 0,    msg: '16:30? Naga @ North' }, ????????
     ];
