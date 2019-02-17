@@ -1,9 +1,8 @@
 module.exports = function FwcTimerGuide(dispatch) {	
-
+	const command = mod.command || mod.require.command;
     /*
         TODO: Watch when mobs despawn to get next proper spawn time
     */
-
     const warningTime = 60000;
 
     const messages = [
@@ -21,8 +20,26 @@ module.exports = function FwcTimerGuide(dispatch) {
     
     let timers = [],
     inBg = false;
+	let enabled = true;
+	let streamMode = false;
 
-    dispatch.hook('S_LOAD_TOPO', 3, (event) => {
+	command.add('fwc', (arg) => {
+        if (arg === undefined){
+            enabled = !enabled;
+            command.message('Fwc Guide ' + (enabled ? 'Enabled' : 'Disabled') + '.');
+        } else if(arg.toLowerCase() === "off"){
+            enabled = false;
+            command.message('Fwc Guide ' + (enabled ? 'Enabled' : 'Disabled') + '.');
+        } else if(arg.toLowerCase() === "on"){
+            enabled = true;
+            command.message('Fwc Guide ' + (enabled ? 'Enabled' : 'Disabled') + '.');
+        } else if(arg.toLowerCase() === "stream"){
+            streamMode = !streamMode;
+            command.message('Fwc Guide - Stream Mode: ' + (streamMode ? 'Enabled.' : 'Disabled.'));
+        }
+    });
+	
+    mod.hook('S_LOAD_TOPO', 3, (event) => {
         inBg = event.zone === 112 ? true : false;
         if (!inBg && timers.length > 0) {
             for (let i = 0; i < timers.length; i++) {
@@ -32,12 +49,12 @@ module.exports = function FwcTimerGuide(dispatch) {
         }
     });
     
-//    dispatch.hook('S_BATTLE_FIELD_STATE', 1, (event) => {   
+//    mod.hook('S_BATTLE_FIELD_STATE', 1, (event) => {   
 //        if (event.state === 1) startTimers();
 //    });
     
     // workaround for missing S_BATTLE_FIELD_STATE def
-    dispatch.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+    mod.hook('S_SYSTEM_MESSAGE', 1, (event) => {
         if (inBg && event.message.startsWith("@153") && event.message[9] === '2' && timers.length == 0) {
             startTimers();
         }
@@ -50,18 +67,24 @@ module.exports = function FwcTimerGuide(dispatch) {
     }
     
     function displayMessage(msg) {
-        dispatch.toClient('S_CHAT', 1, {    
-            channel: 7, 
-            authorName: '',
-            message: msg
-         });
-        
-        dispatch.toClient('S_DUNGEON_EVENT_MESSAGE', 1, {    
-            unk1: 42, // 42 Blue Shiny Text, 31 Normal Text
-            unk2: 0, 
-            unk3: 27, 
-            message: msg
-        });
+		if(!enabled) return;
+		
+		if(streamMode){
+			command.message(msg); // send to proxy chat
+        } else{
+			mod.toClient('S_CHAT', 1, {    
+				channel: 7,  // send to /w chat
+				//channel: 21,  // send to p-notice
+				authorName: 'fwc-guide',
+				message: msg
+			});
+			mod.toClient('S_DUNGEON_EVENT_MESSAGE', 2, {
+				message: msg,
+				type: 2,
+				chat: false,
+				channel: 0
+			});
+		}
     }
     
 }
